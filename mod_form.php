@@ -59,6 +59,12 @@ class mod_cfp_mod_form extends moodleform_mod {
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
+        $name = 'Início do envio das apresentações';
+        $mform->addElement('date_time_selector', 'startdate', $name, array('optional'=>true));
+
+        $name = 'Fim do envio das apresentações';
+        $mform->addElement('date_time_selector', 'duedate', $name, array('optional'=>true));
+
         // Adding the standard "intro" and "introformat" fields.
         $this->standard_intro_elements();
 
