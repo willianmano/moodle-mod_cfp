@@ -92,7 +92,7 @@ class view implements renderable, templatable {
         }
 
         $issubmissionavailable = true;
-        if ($this->cfp->startdate < time() || $this->cfp->duedate > time()) {
+        if ($this->cfp->startdate > time() || $this->cfp->duedate < time()) {
             $issubmissionavailable = false;
         }
 
