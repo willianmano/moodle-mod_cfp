@@ -141,7 +141,7 @@ function cfp_add_submission($data) {
     $data->userid = $USER->id;
     $data->status = 'analise';
     $data->timecreated = time();
-    $data->timeupdated = time();
+    $data->timemodified = time();
 
     return $DB->insert_record('cfp_submissions', $data);
 }
