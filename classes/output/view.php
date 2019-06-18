@@ -47,6 +47,10 @@ class view implements renderable, templatable {
     public function __construct($course, $cfp)
     {
         $this->course = $course;
+
+        $cfp->humanstartdate = userdate($cfp->startdate);
+        $cfp->humanduedate = userdate($cfp->duedate);
+
         $this->cfp = $cfp;
     }
 
@@ -87,9 +91,15 @@ class view implements renderable, templatable {
             }
         }
 
+        $issubmissionavailable = true;
+        if ($this->cfp->startdate < time() || $this->cfp->duedate > time()) {
+            $issubmissionavailable = false;
+        }
+
         return [
             'course' => $this->course,
             'cfp' => $this->cfp,
+            'issubmissionavailable' => $issubmissionavailable,
             'submissions' => $submissions,
             'hassubmissions' => count($submissions) ? true : false
         ];

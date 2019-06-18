@@ -4,8 +4,13 @@
     {{{ cfp.intro }}}
 </div>
 
+<div class="alert alert-info">
+    <p class="text-center m-b-0">Perído para submissão de atividades:</p>
+    <p class="text-center m-b-0">de <b>{{{ cfp.humanstartdate }}}</b> até <b>{{{ cfp.humanduedate }}}</b></p>
+</div>
+
 {{^hassubmissions}}
-    <div class="alert alert-info">Você ainda não fez submissões de palestras para esse evento</div>
+    <div class="alert alert-info">Você ainda não fez submissões de atividades para esse evento</div>
 {{/hassubmissions}}
 {{#hassubmissions}}
     <table class="table table-striped">
@@ -34,6 +39,8 @@
     </table>
 {{/hassubmissions}}
 
-<div class="m-t-1">
-    <a class="btn btn-primary" href="{{{config.wwwroot}}}/mod/cfp/submit.php?cfpid={{{cfp.id}}}">Enviar nova proposta de palestra</a>
-</div>
+{{#issubmissionavailable}}
+    <div class="m-t-1">
+        <a class="btn btn-primary" href="{{{config.wwwroot}}}/mod/cfp/submit.php?cfpid={{{cfp.id}}}">Enviar nova proposta de palestra</a>
+    </div>
+{{/issubmissionavailable}}
