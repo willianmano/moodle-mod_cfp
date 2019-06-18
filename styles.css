@@ -1,0 +1,15 @@
+#page-mod-quizcompare-view .que .info {
+    float: none;
+    width: initial;
+    border: 0;
+    margin-bottom: 0;
+}
+
+#page-mod-quizcompare-view .que .info .questionflag.editable {
+    display: none;
+}
+
+#page-mod-quizcompare-view .que .content,
+#page-mod-quizcompare-view .que .formulation {
+    margin: 0;
+}
