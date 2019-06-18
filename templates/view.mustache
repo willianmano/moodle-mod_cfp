@@ -1,31 +1,39 @@
-<div class="card">
-    <div class="card-body">
-        <div class="card-title">
-            <h5 class="card-title">{{{ course.fullname }}} - {{{ quizcompare.name }}}</h5>
-        </div>
+<h5 class="card-title">{{{ cfp.name }}}</h5>
 
-        <div class="container-fluid">
-            {{#haswarning}}
-                <div class="alert alert-danger">{{{ warning }}}</div>
-            {{/haswarning}}
-            {{^haswarning}}
-                <div class="row">
-                    {{#quizes}}
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="card-title">
-                                        <h5 class="card-title">{{{ name }}}</h5>
-                                    </div>
-                                    {{> mod_quizcompare/summary }}
+<div class="bd-callout bd-callout-primary">
+    {{{ cfp.intro }}}
+</div>
 
-                                    {{{ questions }}}
-                                </div>
-                            </div>
-                        </div>
-                    {{/quizes}}
-                </div>
-            {{/haswarning}}
-        </div>
-    </div>
+{{^hassubmissions}}
+    <div class="alert alert-info">Você ainda não fez submissões de palestras para esse evento</div>
+{{/hassubmissions}}
+{{#hassubmissions}}
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Público alvo</th>
+            <th scope="col">Trilha</th>
+            <th scope="col">Título</th>
+            <th scope="col">Status</th>
+        </tr>
+        </thead>
+        <tbody>
+            {{#submissions}}
+                <tr>
+                    <th scope="row">{{{ id }}}</th>
+                    <td>{{{ type }}}</td>
+                    <td>{{{ audience }}}</td>
+                    <td>{{{ track }}}</td>
+                    <td>{{{ title }}}</td>
+                    <td><span class="badge badge-pill badge-{{{ statusclass }}}">{{{ status }}}</span></td>
+                </tr>
+            {{/submissions}}
+        </tbody>
+    </table>
+{{/hassubmissions}}
+
+<div class="m-t-1">
+    <a class="btn btn-primary" href="{{{config.wwwroot}}}/mod/cfp/submit.php?cfpid={{{cfp.id}}}">Enviar nova proposta de palestra</a>
 </div>

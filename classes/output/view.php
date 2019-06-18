@@ -60,61 +60,38 @@ class view implements renderable, templatable {
      * @throws \dml_exception
      */
     public function export_for_template(renderer_base $output) {
-        global $DB, $USER, $PAGE;
+        global $DB, $USER;
 
-        $sql = 'SELECT q.id, q.name, q.grademethod, q.timelimit, q.sumgrades, q.grade, q.decimalpoints, cm.id as cmid, cm.course, cm.section
-                FROM mdl_course_modules cm
-                INNER JOIN mdl_modules m ON m.id = cm.module
-                INNER JOIN mdl_quiz q ON cm.instance = q.id
-                WHERE cm.course = :course AND m.name = :modulename
-                ORDER BY cm.section';
-        $params = ['course' => $this->course->id, 'modulename' => 'quiz'];
+        $sql = 'SELECT * FROM {cfp_submissions} WHERE cfpid = :cfpid AND userid = :userid';
+        $params = ['cfpid' => $this->cfp->id, 'userid' => $USER->id];
 
-        $quizes = array_values($DB->get_records_sql($sql, $params));
+        $submissions = array_values($DB->get_records_sql($sql, $params));
 
-        $haswarning = false;
-        $warning = null;
-        if (!$quizes) {
-            $haswarning = true;
-            $warning = 'Não existem atividades do tipo Quiz neste curso.';
-        } else {
-            foreach ($quizes as $key => $quiz) {
-                $util = new util($quiz, $USER);
-                $bestattempt = $util->get_best_attempt();
-
-                if ($bestattempt === false) {
-                    $haswarning = true;
-                    $warning = 'Você precisa responder todos os quizes do curso para poder acesar este módulo.';
-
-                    break;
+        if ($submissions) {
+            foreach ($submissions as $key => $submission) {
+                switch($submission->status) {
+                    case 'naoselecionada':
+                        $submissions[$key]->statusclass = 'danger';
+                        $submissions[$key]->status = 'Não selecionada';
+                    case 'selecionada':
+                        $submissions[$key]->statusclass = 'success';
+                        $submissions[$key]->status = 'Selecionada';
+                    default:
+                        $submissions[$key]->statusclass = 'dark';
+                        $submissions[$key]->status = 'Em análise';
                 }
 
-                if ($bestattempt === null) {
-                    $haswarning = true;
-                    $warning = 'Um dos quizes do curso está usando o método de avaliação de média das notas e este método não é permitido para este módulo de comparação.';
-
-                    break;
-                }
-
-                $summarydata = $util->get_summary_data($bestattempt);
-                $quizes[$key]->summarydata = $summarydata;
-
-                $attemptobj = $util->get_attempt_object($bestattempt->id);
-
-                $quizrenderer = $PAGE->get_renderer('mod_quiz');
-                $slots = $attemptobj->get_slots();
-                $displayoptions = $attemptobj->get_display_options(false);
-
-                $quizes[$key]->questions = $quizrenderer->questions($attemptobj, true, $slots, 0, true, $displayoptions);
+                $submissions[$key]->type = ucfirst($submission->type);
+                $submissions[$key]->audience = ucfirst($submission->audience);
+                $submissions[$key]->track = ucfirst($submission->track);
             }
         }
 
         return [
             'course' => $this->course,
             'cfp' => $this->cfp,
-            'quizes' => $quizes,
-            'haswarning' => $haswarning,
-            'warning' => $warning
+            'submissions' => $submissions,
+            'hassubmissions' => count($submissions) ? true : false
         ];
     }
 }

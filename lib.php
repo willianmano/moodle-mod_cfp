@@ -32,7 +32,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 function cfp_supports($feature) {
     switch($feature) {
-        case FEATURE_MOD_ARCHETYPE:           return MOD_ARCHETYPE_RESOURCE;
+        case FEATURE_MOD_ARCHETYPE:           return MOD_ARCHETYPE_ASSIGNMENT;
         case FEATURE_GROUPS:                  return false;
         case FEATURE_GROUPINGS:               return false;
         case FEATURE_MOD_INTRO:               return true;
@@ -131,4 +131,17 @@ function cfp_delete_instance($id) {
     $DB->delete_records('cfp', array('id' => $cfp->id));
 
     return true;
+}
+
+function cfp_add_submission($data) {
+    global $DB, $USER;
+
+    unset($data->submitbutton);
+
+    $data->userid = $USER->id;
+    $data->status = 'analise';
+    $data->timecreated = time();
+    $data->timeupdated = time();
+
+    return $DB->insert_record('cfp_submissions', $data);
 }

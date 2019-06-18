@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Prints a particular instance of nps
+ * Prints a particular instance of cfp
  *
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
@@ -25,24 +25,25 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// Replace nps with the name of your module and remove this line.
+// Replace cfp with the name of your module and remove this line.
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
+require_once(dirname(__FILE__).'/submit_form.php');
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
 $cfpid  = optional_param('cfpid', 0, PARAM_INT);  // CFP instance ID
 
 if ($id) {
-    $cm = get_coursemodule_from_id('cfp', $id, 0, false, MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $cfp = $DB->get_record('cfp', array('id' => $cm->instance), '*', MUST_EXIST);
+    $cm         = get_coursemodule_from_id('cfp', $id, 0, false, MUST_EXIST);
+    $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+    $cfp  = $DB->get_record('cfp', array('id' => $cm->instance), '*', MUST_EXIST);
 }
 
 if (!$id && $cfpid) {
-    $cfp = $DB->get_record('cfp', array('id' => $cfpid), '*', MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $cfp->course), '*', MUST_EXIST);
-    $cm = get_coursemodule_from_instance('cfp', $cfp->id, $course->id, false, MUST_EXIST);
+    $cfp  = $DB->get_record('cfp', array('id' => $cfpid), '*', MUST_EXIST);
+    $course     = $DB->get_record('course', array('id' => $cfp->course), '*', MUST_EXIST);
+    $cm         = get_coursemodule_from_instance('cfp', $cfp->id, $course->id, false, MUST_EXIST);
 }
 
 if (!$cfp) {
@@ -61,16 +62,31 @@ $event->add_record_snapshot($PAGE->cm->modname, $cfp);
 $event->trigger();
 
 // Print the page header.
-$PAGE->set_url('/mod/cfp/view.php', array('id' => $cm->id));
+$url = new moodle_url('/mod/cfp/submit.php', array('id' => $cm->id));
+$PAGE->set_url($url);
 $PAGE->set_title(format_string($cfp->name));
 $PAGE->set_heading(format_string($course->fullname));
 
-$viewrenderable = new mod_cfp\output\view($course, $cfp);
+$submitform = new mod_cfp_submit_form($url, ['cfp' => $cfp]);
+if ($submitform->is_cancelled()) {
+    redirect(new moodle_url('/mod/cfp/view.php', ['id' => $cm->id]));
+} else if ($data = $submitform->get_data()) {
+    // Creates the new record.
+    if ($data) {
+        $submissionid = cfp_add_submission($data);
+
+        if ($submissionid) {
+            redirect(new moodle_url('/mod/cfp/view.php', ['id' => $cm->id]));
+        }
+    }
+}
+
+$submitrenderable = new mod_cfp\output\submit($cfp, $submitform);
 
 $renderer = $PAGE->get_renderer('mod_cfp');
 
 echo $renderer->header();
 
-echo $renderer->render($viewrenderable);
+echo $renderer->render($submitrenderable);
 
 echo $renderer->footer();

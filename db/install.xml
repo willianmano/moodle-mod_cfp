@@ -25,6 +25,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true"/>
         <FIELD NAME="cfpid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="cfp id"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="cfp id"/>
         <FIELD NAME="type" TYPE="char" LENGTH="45" NOTNULL="true" SEQUENCE="false" COMMENT="Tipo: palestra, mesa redonda..."/>
         <FIELD NAME="audience" TYPE="char" LENGTH="45" NOTNULL="true" SEQUENCE="false" COMMENT="Publico alvo"/>
         <FIELD NAME="track" TYPE="char" LENGTH="45" NOTNULL="true" SEQUENCE="false" COMMENT="Trilha"/>
@@ -43,6 +44,7 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="cfpid" UNIQUE="false" FIELDS="cfpid"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
   </TABLES>

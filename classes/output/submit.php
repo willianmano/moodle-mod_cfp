@@ -15,49 +15,61 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Module renderer
+ * View page class renderable.
  *
  * @package    mod_cfp
  * @copyright  2019 Willian Mano {@link http://conecti.me}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 namespace mod_cfp\output;
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
-use plugin_renderer_base;
+use mod_cfp\util;
+use renderable;
+use renderer_base;
+use templatable;
+use core_completion\progress;
 
 /**
- * Recently accessed items block renderer
+ * Class containing data for Recently accessed items block.
  *
  * @package    block_recently_course
  * @copyright  2018 onwards Willian Mano
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class renderer extends plugin_renderer_base {
-    /**
-     * Return the main content for the view page.
-     *
-     * @param \renderer_base $main The main renderable
-     *
-     * @return string HTML string
-     *
-     * @throws \moodle_exception
-     */
-    public function render_view(\renderable $main) {
-        return $this->render_from_template('mod_cfp/view', $main->export_for_template($this));
+class submit implements renderable, templatable {
+
+    protected $cfp;
+    protected $form;
+
+    public function __construct($cfp, $form)
+    {
+        $this->form = $form;
+        $this->cfp = $cfp;
     }
 
     /**
-     * Return the main content for the submit form page.
+     * Export this data so it can be used as the context for a mustache template.
      *
-     * @param \renderer_base $main The main renderable
+     * @param \renderer_base $output
      *
-     * @return string HTML string
+     * @return stdClass
      *
-     * @throws \moodle_exception
+     * @throws \dml_exception
      */
-    public function render_submit(\renderable $main) {
-        return $this->render_from_template('mod_cfp/submit', $main->export_for_template($this));
+    public function export_for_template(renderer_base $output) {
+        global $DB, $USER;
+
+        ob_start();
+        $this->form->display();
+        $form = ob_get_contents();
+        ob_end_clean();
+
+        return [
+            'cfp' => $this->cfp,
+            'form' => $form
+        ];
     }
 }
