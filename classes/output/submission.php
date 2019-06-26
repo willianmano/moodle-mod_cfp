@@ -31,21 +31,23 @@ use renderer_base;
 use templatable;
 
 /**
- * Class containing data for Recently accessed items block.
+ * Class containing data for cfp manage page.
  *
  * @package    mod_cfp
  * @copyright  2019 Willian Mano {@link http://conecti.me}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class submit implements renderable, templatable {
+class submission implements renderable, templatable {
 
+    protected $course;
     protected $cfp;
-    protected $form;
+    protected $submission;
 
-    public function __construct($cfp, $form)
+    public function __construct($course, $cfp, $submission)
     {
-        $this->form = $form;
+        $this->course = $course;
         $this->cfp = $cfp;
+        $this->submission = $submission;
     }
 
     /**
@@ -55,16 +57,27 @@ class submit implements renderable, templatable {
      *
      * @return array
      *
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public function export_for_template(renderer_base $output) {
-        ob_start();
-        $this->form->display();
-        $form = ob_get_contents();
-        ob_end_clean();
+        global $DB, $PAGE;
+
+        $sql = 'SELECT * FROM {user} WHERE id = :id';
+        $params = ['id' => $this->submission->userid];
+
+        $user = $DB->get_record_sql($sql, $params);
+
+        $userimg = new \user_picture($user);
+        $userimg->size = 100;
+
+        $user->img = $userimg->get_url($PAGE);
 
         return [
+            'course' => $this->course,
             'cfp' => $this->cfp,
-            'form' => $form
+            'submission' => $this->submission,
+            'user' => $user
         ];
     }
 }

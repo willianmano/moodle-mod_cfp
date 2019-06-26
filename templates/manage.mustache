@@ -1,16 +1,7 @@
 <h5 class="card-title">{{{ cfp.name }}}</h5>
 
-<div class="bd-callout bd-callout-primary">
-    {{{ cfp.intro }}}
-</div>
-
-<div class="alert alert-info">
-    <p class="text-center m-b-0">Perído para submissão de atividades:</p>
-    <p class="text-center m-b-0">de <b>{{{ cfp.humanstartdate }}}</b> até <b>{{{ cfp.humanduedate }}}</b></p>
-</div>
-
 {{^hassubmissions}}
-    <div class="alert alert-info">Você ainda não fez submissões de atividades para esse evento</div>
+    <div class="alert alert-info">Até o momento não foram feitas submissões de atividades para esse evento</div>
 {{/hassubmissions}}
 {{#hassubmissions}}
     <table class="table table-striped">
@@ -21,7 +12,9 @@
             <th scope="col">Público alvo</th>
             <th scope="col">Trilha</th>
             <th scope="col">Título</th>
+            <th scope="col">Proponente</th>
             <th scope="col">Status</th>
+            <th scope="col"></th>
         </tr>
         </thead>
         <tbody>
@@ -32,21 +25,11 @@
                     <td>{{{ audience }}}</td>
                     <td>{{{ track }}}</td>
                     <td>{{{ title }}}</td>
+                    <td>{{{ firstname }}} {{{ lastname }}}</td>
                     <td><span class="badge badge-pill badge-{{{ statusclass }}}">{{{ status }}}</span></td>
+                    <td style="width: 100px;"><a class="btn btn-sm btn-info" href="{{config.wwwroot}}/mod/cfp/submission.php?id={{{ id }}}">Ver submissão</a></td>
                 </tr>
             {{/submissions}}
         </tbody>
     </table>
 {{/hassubmissions}}
-
-{{#issubmissionavailable}}
-    <div class="m-t-1">
-        <a class="btn btn-primary" href="{{{config.wwwroot}}}/mod/cfp/submit.php?cfpid={{{cfp.id}}}">Enviar nova proposta de palestra</a>
-    </div>
-{{/issubmissionavailable}}
-
-{{#canmanage}}
-    <div class="m-t-1">
-        <a class="btn btn-info" href="{{{config.wwwroot}}}/mod/cfp/manage.php?cfpid={{{cfp.id}}}"><i class="fa fa-cog"></i> Gerenciar propostas enviadas</a>
-    </div>
-{{/canmanage}}

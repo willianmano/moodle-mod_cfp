@@ -16,7 +16,7 @@
 
 /**
  *
- * @package    mod_quizcompare
+ * @package    mod_cfp
  * @copyright  2019 Willian Mano {@link http://conecti.me}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

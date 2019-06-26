@@ -30,15 +30,41 @@ use plugin_renderer_base;
 /**
  * Recently accessed items block renderer
  *
- * @package    block_recently_course
- * @copyright  2018 onwards Willian Mano
+ * @package    mod_cfp
+ * @copyright  2019 Willian Mano {@link http://conecti.me}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class renderer extends plugin_renderer_base {
     /**
      * Return the main content for the view page.
      *
-     * @param \renderer_base $main The main renderable
+     * @param \renderable $main The main renderable
+     *
+     * @return string HTML string
+     *
+     * @throws \moodle_exception
+     */
+    public function render_submission(\renderable $main) {
+        return $this->render_from_template('mod_cfp/submission', $main->export_for_template($this));
+    }
+
+    /**
+     * Return the main content for the view page.
+     *
+     * @param \renderable $main The main renderable
+     *
+     * @return string HTML string
+     *
+     * @throws \moodle_exception
+     */
+    public function render_manage(\renderable $main) {
+        return $this->render_from_template('mod_cfp/manage', $main->export_for_template($this));
+    }
+
+    /**
+     * Return the main content for the view page.
+     *
+     * @param \renderable $main The main renderable
      *
      * @return string HTML string
      *
@@ -51,7 +77,7 @@ class renderer extends plugin_renderer_base {
     /**
      * Return the main content for the submit form page.
      *
-     * @param \renderer_base $main The main renderable
+     * @param \renderable $main The main renderable
      *
      * @return string HTML string
      *

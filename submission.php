@@ -30,44 +30,26 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 
-$id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
-$cfpid  = optional_param('cfpid', 0, PARAM_INT);  // CFP instance ID
+$id = required_param('id', PARAM_INT); // The submission ID
 
-if ($id) {
-    $cm = get_coursemodule_from_id('cfp', $id, 0, false, MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $cfp = $DB->get_record('cfp', array('id' => $cm->instance), '*', MUST_EXIST);
-}
+$submission = $DB->get_record('cfp_submissions', ['id' => $id], '*', MUST_EXIST);
 
-if (!$id && $cfpid) {
-    $cfp = $DB->get_record('cfp', array('id' => $cfpid), '*', MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $cfp->course), '*', MUST_EXIST);
-    $cm = get_coursemodule_from_instance('cfp', $cfp->id, $course->id, false, MUST_EXIST);
-}
-
-if (!$cfp) {
-    print_error('You must specify a course_module ID or an instance ID');
-}
+$cfp = $DB->get_record('cfp', array('id' => $submission->cfpid), '*', MUST_EXIST);
+$course = $DB->get_record('course', array('id' => $cfp->course), '*', MUST_EXIST);
+$cm = get_coursemodule_from_instance('cfp', $cfp->id, $course->id, false, MUST_EXIST);
 
 require_login($course, true, $cm);
 
-$event = \mod_cfp\event\course_module_viewed::create(array(
-    'objectid' => $PAGE->cm->instance,
-    'context' => $PAGE->context,
-));
-
-$event->add_record_snapshot('course', $PAGE->course);
-$event->add_record_snapshot($PAGE->cm->modname, $cfp);
-$event->trigger();
+require_capability('mod/cfp:addinstance', $PAGE->context);
 
 // Print the page header.
-$PAGE->set_url('/mod/cfp/view.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/cfp/submission.php', array('id' => $id));
 $PAGE->set_title(format_string($cfp->name));
 $PAGE->set_heading(format_string($course->fullname));
 
-$cfp->context = $PAGE->context;
+$context = context_module::instance($cm->id);
 
-$viewrenderable = new mod_cfp\output\view($course, $cfp);
+$viewrenderable = new mod_cfp\output\submission($course, $cfp, $submission);
 
 $renderer = $PAGE->get_renderer('mod_cfp');
 

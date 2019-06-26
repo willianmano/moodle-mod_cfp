@@ -31,13 +31,13 @@ use renderer_base;
 use templatable;
 
 /**
- * Class containing data for cfp view page.
+ * Class containing data for cfp manage page.
  *
  * @package    mod_cfp
  * @copyright  2019 Willian Mano {@link http://conecti.me}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class view implements renderable, templatable {
+class manage implements renderable, templatable {
 
     protected $course;
     protected $cfp;
@@ -45,10 +45,6 @@ class view implements renderable, templatable {
     public function __construct($course, $cfp)
     {
         $this->course = $course;
-
-        $cfp->humanstartdate = userdate($cfp->startdate);
-        $cfp->humanduedate = userdate($cfp->duedate);
-
         $this->cfp = $cfp;
     }
 
@@ -63,10 +59,13 @@ class view implements renderable, templatable {
      * @throws \dml_exception
      */
     public function export_for_template(renderer_base $output) {
-        global $DB, $USER;
+        global $DB;
 
-        $sql = 'SELECT * FROM {cfp_submissions} WHERE cfpid = :cfpid AND userid = :userid';
-        $params = ['cfpid' => $this->cfp->id, 'userid' => $USER->id];
+        $sql = 'SELECT s.*, u.email, u.firstname, u.lastname
+                FROM {cfp_submissions} s
+                INNER JOIN {user} u ON u.id = s.userid 
+                WHERE cfpid = :cfpid';
+        $params = ['cfpid' => $this->cfp->id];
 
         $submissions = array_values($DB->get_records_sql($sql, $params));
 
@@ -90,23 +89,11 @@ class view implements renderable, templatable {
             }
         }
 
-        $issubmissionavailable = true;
-        if ($this->cfp->startdate > time() || $this->cfp->duedate < time()) {
-            $issubmissionavailable = false;
-        }
-
-        $canmanage = false;
-        if (has_capability('mod/cfp:addinstance', $this->cfp->context)) {
-            $canmanage = true;
-        }
-
         return [
             'course' => $this->course,
             'cfp' => $this->cfp,
-            'issubmissionavailable' => $issubmissionavailable,
             'submissions' => $submissions,
             'hassubmissions' => count($submissions) ? true : false,
-            'canmanage' => $canmanage
         ];
     }
 }
