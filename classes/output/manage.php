@@ -39,8 +39,8 @@ use templatable;
  */
 class manage implements renderable, templatable {
 
-    protected $course;
-    protected $cfp;
+    public $course;
+    public $cfp;
 
     public function __construct($course, $cfp)
     {
