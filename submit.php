@@ -15,78 +15,76 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Prints a particular instance of cfp
- *
- * You can have a rather longer description of the file as well,
- * if you like, and it can span multiple lines.
+ * Assign Tutor Assessment submit page
  *
  * @package    mod_cfp
- * @copyright  2019 Willian Mano {@link http://conecti.me}
+ * @copyright  2022 Willian Mano - http://conecti.me
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// Replace cfp with the name of your module and remove this line.
+require(__DIR__.'/../../config.php');
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/lib.php');
-require_once(dirname(__FILE__).'/submit_form.php');
+$id = required_param('id', PARAM_INT);
 
-$id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
-$cfpid  = optional_param('cfpid', 0, PARAM_INT);  // CFP instance ID
+list ($course, $cm) = get_course_and_cm_from_cmid($id, 'cfp');
+$cfp = $DB->get_record('cfp', ['id' => $cm->instance], '*', MUST_EXIST);
 
-if ($id) {
-    $cm         = get_coursemodule_from_id('cfp', $id, 0, false, MUST_EXIST);
-    $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $cfp  = $DB->get_record('cfp', array('id' => $cm->instance), '*', MUST_EXIST);
+$urlparams = ['id' => $id];
+
+if ($cfp->duedate < time()) {
+    $url = new moodle_url('/mod/cfp/view.php', $urlparams);
+
+    redirect($url, get_string('submit_blockmsg', 'mod_cfp'), null, \core\output\notification::NOTIFY_ERROR);
 }
 
-if (!$id && $cfpid) {
-    $cfp  = $DB->get_record('cfp', array('id' => $cfpid), '*', MUST_EXIST);
-    $course     = $DB->get_record('course', array('id' => $cfp->course), '*', MUST_EXIST);
-    $cm         = get_coursemodule_from_instance('cfp', $cfp->id, $course->id, false, MUST_EXIST);
-}
+require_course_login($course, true, $cm);
 
-if (!$cfp) {
-    print_error('You must specify a course_module ID or an instance ID');
-}
+$context = context_module::instance($cm->id);
 
-require_login($course, true, $cm);
+require_capability('mod/cfp:submit', $context);
 
-$event = \mod_cfp\event\course_module_viewed::create(array(
-    'objectid' => $PAGE->cm->instance,
-    'context' => $PAGE->context,
-));
+$url = new moodle_url('/mod/cfp/submit.php', $urlparams);
 
-$event->add_record_snapshot('course', $PAGE->course);
-$event->add_record_snapshot($PAGE->cm->modname, $cfp);
-$event->trigger();
+$formdata = [
+    'cfpid' => $cfp->id
+];
 
-// Print the page header.
-$url = new moodle_url('/mod/cfp/submit.php', array('id' => $cm->id));
-$PAGE->set_url($url);
-$PAGE->set_title(format_string($cfp->name));
-$PAGE->set_heading(format_string($course->fullname));
+$form = new \mod_cfp\forms\submit($url, $formdata);
 
-$submitform = new mod_cfp_submit_form($url, ['cfp' => $cfp]);
-if ($submitform->is_cancelled()) {
-    redirect(new moodle_url('/mod/cfp/view.php', ['id' => $cm->id]));
-} else if ($data = $submitform->get_data()) {
-    // Creates the new record.
-    if ($data) {
-        $submissionid = cfp_add_submission($data);
+if ($form->is_cancelled()) {
+    redirect(new moodle_url('/mod/cfp/view.php', $urlparams));
+} else if ($formdata = $form->get_data()) {
+    try {
+        $data = clone $formdata;
 
-        if ($submissionid) {
-            redirect(new moodle_url('/mod/cfp/view.php', ['id' => $cm->id]));
+        require_once(__DIR__ . '/locallib.php');
+
+        unset($data->submitbutton);
+
+        $url = new moodle_url('/mod/cfp/view.php', $urlparams);
+
+        $userutil = new \mod_cfp\util\user($cfp);
+
+        if (!$userutil->activity_submitted()) {
+            mod_cfp_add_submission($context, $course, $cm, $data);
+
+            redirect($url, 'Avaliação enviada com sucesso.', null, \core\output\notification::NOTIFY_SUCCESS);
+        } else {
+            mod_cfp_update_submission($context, $course, $cm, $cfp, $data);
+
+            redirect($url, 'Avaliação atualizada com sucesso.', null, \core\output\notification::NOTIFY_SUCCESS);
         }
+    } catch (\Exception $e) {
+        redirect($url, $e->getMessage(), null, \core\output\notification::NOTIFY_ERROR);
     }
+} else {
+    $PAGE->set_url($url);
+    $PAGE->set_title(format_string($course->shortname) . ': ' .format_string($cfp->name));
+    $PAGE->set_heading(format_string($course->fullname));
+
+    echo $OUTPUT->header();
+
+    $form->display();
+
+    echo $OUTPUT->footer();
 }
-
-$submitrenderable = new mod_cfp\output\submit($cfp, $submitform);
-
-$renderer = $PAGE->get_renderer('mod_cfp');
-
-echo $renderer->header();
-
-echo $renderer->render($submitrenderable);
-
-echo $renderer->footer();

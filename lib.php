@@ -66,7 +66,7 @@ function cfp_add_instance(stdClass $cfp, mod_cfp_mod_form $mform = null) {
               WHERE np.course = :courseid
               AND deletioninprogress <> 1
               AND mo.name = 'cfp'";
-    
+
     $parameters = ['courseid' => $cfp->course];
 
     // Get user logs.
@@ -144,4 +144,72 @@ function cfp_add_submission($data) {
     $data->timemodified = time();
 
     return $DB->insert_record('cfp_submissions', $data);
+}
+
+/**
+ * This function extends the settings navigation block for the site.
+ *
+ * It is safe to rely on PAGE here as we will only ever be within the module
+ * context when this is called
+ *
+ * @param settings_navigation $settings
+ * @param navigation_node $modnode
+ * @return void
+ */
+function cfp_extend_settings_navigation($settings, $modnode) {
+    global $PAGE;
+
+    if (!has_capability('mod/cfp:addinstance', $PAGE->cm->context)) {
+        return false;
+    }
+
+    // We want to add these new nodes after the Edit settings node, and before the
+    // Locally assigned roles node. Of course, both of those are controlled by capabilities.
+    $keys = $modnode->get_children_key_list();
+    $beforekey = null;
+    $i = array_search('modedit', $keys);
+    if ($i === false and array_key_exists(0, $keys)) {
+        $beforekey = $keys[0];
+    } else if (array_key_exists($i + 1, $keys)) {
+        $beforekey = $keys[$i + 1];
+    }
+
+    $node = navigation_node::create(get_string('editquestions', 'mod_cfp'),
+        new moodle_url('/mod/cfp/questions.php', array('id' => $PAGE->cm->id)),
+        navigation_node::TYPE_SETTING, null, 'mod_cfp_editquestions',
+        new pix_icon('t/edit', ''));
+    $modnode->add_node($node, $beforekey);
+}
+
+/**
+ * Fragment used in add question modal
+ *
+ * @param array $args
+ *
+ * @return string
+ */
+function mod_cfp_output_fragment_question_form($args) {
+    $args = (object) $args;
+    $context = $args->context;
+    $o = '';
+
+    $formdata = [];
+    if (!empty($args->jsonformdata)) {
+        $serialiseddata = json_decode($args->jsonformdata);
+        parse_str($serialiseddata, $formdata);
+    }
+
+    $mform = new \mod_cfp\forms\question($formdata, ['cmid' => $context->instanceid]);
+
+    if (!empty($args->jsonformdata)) {
+        // If we were passed non-empty form data we want the mform to call validation functions and show errors.
+        $mform->is_validated();
+    }
+
+    ob_start();
+    $mform->display();
+    $o .= ob_get_contents();
+    ob_end_clean();
+
+    return $o;
 }

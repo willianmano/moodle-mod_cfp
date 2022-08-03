@@ -51,9 +51,11 @@ if (!$cfp) {
 
 require_login($course, true, $cm);
 
+$context = context_module::instance($cm->id);
+
 $event = \mod_cfp\event\course_module_viewed::create(array(
-    'objectid' => $PAGE->cm->instance,
-    'context' => $PAGE->context,
+    'objectid' => $cm->id,
+    'context' => $context,
 ));
 
 $event->add_record_snapshot('course', $PAGE->course);
@@ -65,9 +67,7 @@ $PAGE->set_url('/mod/cfp/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($cfp->name));
 $PAGE->set_heading(format_string($course->fullname));
 
-$cfp->context = $PAGE->context;
-
-$viewrenderable = new mod_cfp\output\view($course, $cfp);
+$viewrenderable = new mod_cfp\output\view($course, $context, $cfp);
 
 $renderer = $PAGE->get_renderer('mod_cfp');
 

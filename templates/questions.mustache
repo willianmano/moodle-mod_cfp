@@ -1,0 +1,59 @@
+<h2>{{{name}}}</h2>
+
+<div id="intro" class="box py-3 generalbox boxaligncenter">{{{intro}}}</div>
+
+{{#canedit}}
+    <div class="text-right mb-3">
+        <a href="#" class="btn btn-primary" data-action="addquestionmodal"><i class="fa fa-plus-circle"></i> {{#str}}addquestion, mod_cfp{{/str}}</a>
+    </div>
+{{/canedit}}
+
+{{^canedit}}
+    <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">{{#str}}activitylocked, mod_cfp{{/str}}</h4>
+        <p class="mb-0">{{#str}}activitylocked_info, mod_cfp{{/str}}</p>
+    </div>
+{{/canedit}}
+
+<table class="table table-bordered table-hover table-questions">
+    <thead class="thead-dark">
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">{{#str}}type, mod_cfp{{/str}}</th>
+        <th scope="col">{{#str}}label, mod_cfp{{/str}}</th>
+        <th scope="col">{{#str}}options, mod_cfp{{/str}}</th>
+        {{#canedit}}<th scope="col">{{#str}}actions, mod_cfp{{/str}}</th>{{/canedit}}
+    </tr>
+    </thead>
+    <tbody>
+    {{#questions}}
+        <tr>
+            <th scope="row">{{{id}}}</th>
+            <td>{{{typename}}}</td>
+            <td>{{{label}}}</td>
+            <td>
+                <ol class="mb-0">
+                    {{#options}}
+                        <li>{{{.}}}</li>
+                    {{/options}}
+                </ol>
+            </td>
+            {{#canedit}}
+                <td style="width: 80px; text-align: center;">
+                    <a href="#" data-id="{{id}}" class="btn btn-danger btn-sm delete-question"><i class="fa fa-trash-o"></i></a>
+                </td>
+            {{/canedit}}
+        </tr>
+    {{/questions}}
+    </tbody>
+</table>
+
+{{#canedit}}
+    {{#js}}
+        require(['mod_cfp/addquestion', 'mod_cfp/deletequestion'], function(AddQuestion, DeleteQuestion) {
+        AddQuestion.init('[data-action=addquestionmodal]', {{contextid}});
+
+        DeleteQuestion.init();
+        });
+    {{/js}}
+{{/canedit}}

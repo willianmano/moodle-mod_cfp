@@ -28,7 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_cfp';
-$plugin->version = 2019060100;
-$plugin->release = '0.0.1';
+$plugin->version = 2022070100;
+$plugin->release = '0.0.2';
 $plugin->requires = 2018112800;
 $plugin->maturity = MATURITY_STABLE;

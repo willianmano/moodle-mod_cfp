@@ -1,0 +1,71 @@
+<h2>{{{name}}}</h2>
+
+<div id="intro" class="box py-3 generalbox boxaligncenter">{{{intro}}}</div>
+
+{{^hasquestions}}
+    <div class="alert alert-warning text-center">
+        <h5>{{#str}}noquestions, mod_cfp{{/str}}</h5>
+
+        <div class="text-center">
+            <a href="{{config.wwwroot}}/mod/cfp/questions.php?id={{cmid}}"
+            class="btn btn-primary text-white">{{#str}}editquestions, mod_cfp{{/str}}</a>
+
+            <a href="{{config.wwwroot}}/course/view.php?id={{course}}"
+            class="btn btn-dark text-white">{{#str}}backtocourse, mod_cfp{{/str}}</a>
+        </div>
+    </div>
+{{/hasquestions}}
+{{#hasquestions}}
+    <div class="gradingsummary">
+        <h3>{{#str}}gradingsummary,  mod_cfp{{/str}}</h3>
+
+        <div class="box py-3 boxaligncenter gradingsummarytable">
+            <table class="generaltable">
+                <tbody>
+                <tr>
+                    <th class="cell c0" scope="row">{{#str}}hidden, mod_cfp{{/str}}</th>
+                    <td class="cell c1 lastcol">
+                        {{#hide}}
+                            {{#str}}no{{/str}}
+                        {{/hide}}
+                        {{^hide}}
+                            {{#str}}yes{{/str}}
+                        {{/hide}}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="cell c0" scope="row">{{#str}}participants, mod_cfp{{/str}}</th>
+                    <td class="cell c1 lastcol">{{{participants}}}</td>
+                </tr>
+                <tr>
+                    <th class="cell c0" scope="row">{{#str}}submissions, mod_cfp{{/str}}</th>
+                    <td class="cell c1 lastcol">{{{submissions}}}</td>
+                </tr>
+                <tr>
+                    <th class="cell c0" scope="row">{{#str}}needssubmission, mod_cfp{{/str}}</th>
+                    <td class="cell c1 lastcol" style="">{{{needssubmission}}}</td>
+                </tr>
+                <tr>
+                    <th class="cell c0" scope="row">{{#str}}duedate, mod_cfp{{/str}}</th>
+                    <td class="cell c1 lastcol">{{{duedate}}}</td>
+                </tr>
+                <tr class="lastrow">
+                    <th class="cell c0" scope="row">{{#str}}timeremaining, mod_cfp{{/str}}</th>
+                    <td class="cell c1 lastcol">
+                        {{#isdelayed}}
+                            <span class="badge badge-danger">{{{timeremaining}}}</span>
+                        {{/isdelayed}}
+                        {{^isdelayed}}
+                            {{{timeremaining}}}
+                        {{/isdelayed}}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="submissionlinks text-center">
+        <a class="btn btn-primary" href="{{config.wwwroot}}/mod/cfp/viewsubmissions.php?id={{{cmid}}}">{{#str}}viewallsubmissions, mod_cfp{{/str}}</a>
+    </div>
+{{/hasquestions}}

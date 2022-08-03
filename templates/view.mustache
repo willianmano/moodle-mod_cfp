@@ -1,52 +1,75 @@
-<h5 class="card-title">{{{ cfp.name }}}</h5>
+{{^hasquestions}}
+    <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">{{#str}}activitynotavailable, mod_cfp{{/str}}</h4>
+        <p>{{#str}}activitynotavailable_info, mod_cfp{{/str}}</p>
+    </div>
 
-<div class="bd-callout bd-callout-primary">
-    {{{ cfp.intro }}}
-</div>
+    <div class="text-center mt-3">
+        <a href="{{config.wwwroot}}/course/view.php?id={{course}}"
+        class="btn btn-dark">{{#str}}backtocourse, mod_cfp{{/str}}</a>
+    </div>
+{{/hasquestions}}
+{{#hasquestions}}
+    <div id="intro" class="box py-3 generalbox boxaligncenter">{{{intro}}}</div>
 
-<div class="alert alert-info">
-    <p class="text-center m-b-0">Período para submissão de atividades:</p>
-    <p class="text-center m-b-0">de <b>{{{ cfp.humanstartdate }}}</b> até <b>{{{ cfp.humanduedate }}}</b></p>
-</div>
+    <div class="gradingsummary">
+        <h3>{{#str}}submission_status, mod_cfp{{/str}}</h3>
 
-{{^hassubmissions}}
-    <div class="alert alert-info">Você ainda não fez submissões de atividades para esse evento</div>
-{{/hassubmissions}}
-{{#hassubmissions}}
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Tipo</th>
-            <th scope="col">Público alvo</th>
-            <th scope="col">Trilha</th>
-            <th scope="col">Título</th>
-            <th scope="col">Status</th>
-        </tr>
-        </thead>
-        <tbody>
-            {{#submissions}}
+        <div class="box py-3 boxaligncenter gradingsummarytable">
+            <table class="generaltable">
+                <tbody>
                 <tr>
-                    <th scope="row">{{{ id }}}</th>
-                    <td>{{{ type }}}</td>
-                    <td>{{{ audience }}}</td>
-                    <td>{{{ track }}}</td>
-                    <td>{{{ title }}}</td>
-                    <td><span class="badge badge-pill badge-{{{ statusclass }}}">{{{ status }}}</span></td>
+                    <th class="cell c0" scope="row" style="width: 200px;">{{#str}}duedate, mod_cfp{{/str}}</th>
+                    <td class="cell c1 lastcol">{{{datelimit}}}</td>
                 </tr>
-            {{/submissions}}
-        </tbody>
-    </table>
-{{/hassubmissions}}
-
-{{#issubmissionavailable}}
-    <div class="m-t-1">
-        <a class="btn btn-primary" href="{{{config.wwwroot}}}/mod/cfp/submit.php?cfpid={{{cfp.id}}}">Enviar nova proposta de palestra</a>
+                <tr>
+                    <th class="cell c0" scope="row" style="width: 200px;">{{#str}}submission_status, mod_cfp{{/str}}</th>
+                    <td class="cell c1 lastcol">
+                        {{#hassubmission}}
+                            <span class="badge badge-success">{{#str}}sent, mod_cfp{{/str}}</span>
+                        {{/hassubmission}}
+                        {{^hassubmission}}
+                            <span class="badge badge-dark">{{#str}}notsent, mod_cfp{{/str}}</span>
+                        {{/hassubmission}}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="cell c0" scope="row" style="width: 200px;">{{#str}}timeremaining, mod_cfp{{/str}}</th>
+                    <td class="cell c1 lastcol">
+                        {{#isdelayed}}
+                            <span class="badge badge-danger">{{{timeremaining}}}</span>
+                        {{/isdelayed}}
+                        {{^isdelayed}}
+                            {{{timeremaining}}}
+                        {{/isdelayed}}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-{{/issubmissionavailable}}
 
-{{#canmanage}}
-    <div class="m-t-1">
-        <a class="btn btn-info" href="{{{config.wwwroot}}}/mod/cfp/manage.php?cfpid={{{cfp.id}}}"><i class="fa fa-cog"></i> Gerenciar propostas enviadas</a>
-    </div>
-{{/canmanage}}
+    {{#hassubmission}}
+        {{#isdelayed}}
+            <div class="alert alert-warning" role="alert">
+                <h3>{{#str}}duetimedone, mod_cfp{{/str}}</h3>
+                <hr>
+                <p class="mb-0">{{#str}}duetimedone_msg, mod_cfp{{/str}}</p>
+            </div>
+        {{/isdelayed}}
+        {{^isdelayed}}
+            <div class="submissionlinks text-center">
+                <a class="btn btn-primary" href="{{{config.wwwroot}}}/mod/cfp/submit.php?id={{{cmid}}}">{{#str}}editsubmission, mod_cfp{{/str}}</a>
+            </div>
+        {{/isdelayed}}
+    {{/hassubmission}}
+    {{^hassubmission}}
+        {{^isdelayed}}
+            <div class="submissionlinks text-center">
+                <a class="btn btn-primary" href="{{{config.wwwroot}}}/mod/cfp/submit.php?id={{{cmid}}}">{{#str}}addsubmission, mod_cfp{{/str}}</a>
+
+                <p class="py-3 submithelp">{{#str}}youhavenotsent, mod_cfp{{/str}}</p>
+            </div>
+        {{/isdelayed}}
+    {{/hassubmission}}
+{{/hasquestions}}

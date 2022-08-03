@@ -26,6 +26,8 @@ namespace mod_cfp\output;
 
 defined('MOODLE_INTERNAL') || die();
 
+use mod_cfp\util\cfp;
+use mod_cfp\util\question;
 use renderable;
 use renderer_base;
 use templatable;
@@ -39,12 +41,14 @@ use templatable;
  */
 class view implements renderable, templatable {
 
-    protected $course;
-    protected $cfp;
+    public $course;
+    public $context;
+    public $cfp;
 
-    public function __construct($course, $cfp)
+    public function __construct($course, $context, $cfp)
     {
         $this->course = $course;
+        $this->context = $context;
 
         $cfp->humanstartdate = userdate($cfp->startdate);
         $cfp->humanduedate = userdate($cfp->duedate);
@@ -63,50 +67,47 @@ class view implements renderable, templatable {
      * @throws \dml_exception
      */
     public function export_for_template(renderer_base $output) {
-        global $DB, $USER;
+        $cfputil = new cfp();
+        $questionutil = new question();
 
-        $sql = 'SELECT * FROM {cfp_submissions} WHERE cfpid = :cfpid AND userid = :userid';
-        $params = ['cfpid' => $this->cfp->id, 'userid' => $USER->id];
+        $hasquestions = $questionutil->activity_has_questions($this->cfp->id);
 
-        $submissions = array_values($DB->get_records_sql($sql, $params));
-
-        if ($submissions) {
-            foreach ($submissions as $key => $submission) {
-                switch($submission->status) {
-                    case 'naoselecionada':
-                        $submissions[$key]->statusclass = 'danger';
-                        $submissions[$key]->status = 'Não selecionada';
-                    case 'selecionada':
-                        $submissions[$key]->statusclass = 'success';
-                        $submissions[$key]->status = 'Selecionada';
-                    default:
-                        $submissions[$key]->statusclass = 'dark';
-                        $submissions[$key]->status = 'Em análise';
-                }
-
-                $submissions[$key]->type = ucfirst($submission->type);
-                $submissions[$key]->audience = ucfirst($submission->audience);
-                $submissions[$key]->track = ucfirst($submission->track);
-            }
+        $timeremaining = $this->cfp->duedate - time();
+        $isdelayed = true;
+        if ($timeremaining > 0) {
+            $isdelayed = false;
         }
 
-        $issubmissionavailable = true;
-        if ($this->cfp->startdate > time() || $this->cfp->duedate < time()) {
-            $issubmissionavailable = false;
-        }
-
-        $canmanage = false;
-        if (has_capability('mod/cfp:addinstance', $this->cfp->context)) {
-            $canmanage = true;
-        }
-
-        return [
-            'course' => $this->course,
-            'cfp' => $this->cfp,
-            'issubmissionavailable' => $issubmissionavailable,
-            'submissions' => $submissions,
-            'hassubmissions' => count($submissions) ? true : false,
-            'canmanage' => $canmanage
+        $data = [
+            'id' => $this->cfp->id,
+            'name' => $this->cfp->name,
+            'intro' => format_module_intro('cfp', $this->cfp, $this->context->instanceid),
+            'duedate' => userdate($this->cfp->duedate),
+            'timeremaining' => format_time($timeremaining),
+            'cmid' => $this->context->instanceid,
+            'course' => $this->cfp->course,
+            'hasquestions' => $hasquestions,
+            'isdelayed' => $isdelayed
         ];
+
+        // If student, return current data.
+        if (!has_capability('mod/cfp:evaluate', $this->context)) {
+            return $data;
+        }
+
+        $coursemodule = get_coursemodule_from_instance('cfp', $this->cfp->id);
+
+        $participants = count_enrolled_users($this->context, 'mod/cfp:submit');
+
+        $submissions = $cfputil->get_total_submissions($this->cfp->id);
+
+        $needssubmission = (int)$participants - $submissions;
+
+        $data['hide'] = $coursemodule->visible;
+        $data['participants'] = $participants;
+        $data['submissions'] = $submissions;
+        $data['needssubmission'] = $needssubmission;
+
+        return $data;
     }
 }

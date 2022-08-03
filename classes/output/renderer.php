@@ -36,54 +36,61 @@ use plugin_renderer_base;
  */
 class renderer extends plugin_renderer_base {
     /**
-     * Return the main content for the view page.
+     * Return the page content for the view page.
      *
-     * @param \renderable $main The main renderable
+     * @param \renderable $page The page renderable
      *
      * @return string HTML string
      *
      * @throws \moodle_exception
      */
-    public function render_submission(\renderable $main) {
-        return $this->render_from_template('mod_cfp/submission', $main->export_for_template($this));
+    public function render_submission(\renderable $page) {
+        return $this->render_from_template('mod_cfp/submission', $page->export_for_template($this));
     }
 
     /**
-     * Return the main content for the view page.
+     * Return the page content for the view page.
      *
-     * @param \renderable $main The main renderable
+     * @param \renderable $page The page renderable
      *
      * @return string HTML string
      *
      * @throws \moodle_exception
      */
-    public function render_manage(\renderable $main) {
-        return $this->render_from_template('mod_cfp/manage', $main->export_for_template($this));
+    public function render_manage(\renderable $page) {
+        return $this->render_from_template('mod_cfp/manage', $page->export_for_template($this));
     }
 
     /**
-     * Return the main content for the view page.
+     * Return the page content for the view page.
      *
-     * @param \renderable $main The main renderable
+     * @param \renderable $page The page renderable
      *
      * @return string HTML string
      *
      * @throws \moodle_exception
      */
-    public function render_view(\renderable $main) {
-        return $this->render_from_template('mod_cfp/view', $main->export_for_template($this));
+    public function render_view(\renderable $page) {
+        $data = $page->export_for_template($this);
+
+        if (has_capability('mod/cfp:evaluate', $page->context)) {
+            return parent::render_from_template('mod_cfp/view_admin', $data);
+        }
+
+        return parent::render_from_template('mod_cfp/view', $data);
+
     }
 
     /**
-     * Return the main content for the submit form page.
+     * Return the page content for the submit form page.
      *
-     * @param \renderable $main The main renderable
+     * @param \renderable $page The page renderable
      *
      * @return string HTML string
      *
      * @throws \moodle_exception
      */
-    public function render_submit(\renderable $main) {
-        return $this->render_from_template('mod_cfp/submit', $main->export_for_template($this));
+    public function render_submit(\renderable $page) {
+        return $this->render_from_template('mod_cfp/submit', $page->export_for_template($this));
     }
 }

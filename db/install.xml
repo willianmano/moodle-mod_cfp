@@ -23,31 +23,50 @@
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="cfp_submissions" COMMENT="Call for papers submissions">
+    <TABLE NAME="cfp_fields" COMMENT="Stores the cfp form fields.">
       <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true"/>
-        <FIELD NAME="cfpid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="cfp id"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="cfp id"/>
-        <FIELD NAME="type" TYPE="char" LENGTH="45" NOTNULL="true" SEQUENCE="false" COMMENT="Tipo: palestra, mesa redonda..."/>
-        <FIELD NAME="audience" TYPE="char" LENGTH="45" NOTNULL="true" SEQUENCE="false" COMMENT="Publico alvo"/>
-        <FIELD NAME="track" TYPE="char" LENGTH="45" NOTNULL="true" SEQUENCE="false" COMMENT="Trilha"/>
-        <FIELD NAME="level" TYPE="char" LENGTH="45" NOTNULL="true" SEQUENCE="false" COMMENT="Nivel"/>
-        <FIELD NAME="contact" TYPE="char" LENGTH="45" NOTNULL="true" SEQUENCE="false" COMMENT="Contato"/>
-        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Titulo da apresentacao"/>
-        <FIELD NAME="resume" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Titulo da apresentacao"/>
-        <FIELD NAME="minicurriculum" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Mini curriculo"/>
-        <FIELD NAME="notes" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Mini curriculo"/>
-        <FIELD NAME="status" TYPE="char" LENGTH="45" NOTNULL="true" SEQUENCE="false" COMMENT="Status da apresentação"/>
-        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false"/>
-        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="cfpid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the assign form activity."/>
+        <FIELD NAME="type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Field type"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Field type"/>
+        <FIELD NAME="label" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Field type"/>
+        <FIELD NAME="options" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Field type"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the instance was added to the course."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_cfpid" TYPE="foreign" FIELDS="cfpid" REFTABLE="cfp" REFFIELDS="id"/>
       </KEYS>
-      <INDEXES>
-        <INDEX NAME="cfpid" UNIQUE="false" FIELDS="cfpid"/>
-        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
-      </INDEXES>
+    </TABLE>
+    <TABLE NAME="cfp_attempts" COMMENT="Stores the cfp attemps.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="cfpid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the assign form activity."/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the user."/>
+        <FIELD NAME="step" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Field type"/>
+        <FIELD NAME="feedback" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Teacher feedback"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="45" NOTNULL="true" SEQUENCE="false" COMMENT="Attempt status"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the instance was added to the course."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_cfpid" TYPE="foreign" FIELDS="cfpid" REFTABLE="cfp" REFFIELDS="id"/>
+        <KEY NAME="fk_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="cfp_answers" COMMENT="Stores the cfp form fields answers.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="fieldid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the assign form field."/>
+        <FIELD NAME="attemptid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the user."/>
+        <FIELD NAME="answer" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Field answer"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the instance was added to the course."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_fieldid" TYPE="foreign" FIELDS="fieldid" REFTABLE="cfp_fields" REFFIELDS="id"/>
+        <KEY NAME="fk_attemptid" TYPE="foreign" FIELDS="attemptid" REFTABLE="cfp_attempts" REFFIELDS="id"/>
+      </KEYS>
     </TABLE>
   </TABLES>
 </XMLDB>
