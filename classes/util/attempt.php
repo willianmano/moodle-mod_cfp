@@ -167,4 +167,60 @@ class attempt {
 
         return get_string('status_naoaprovado', 'mod_cfp');
     }
+
+    public function get_status_alert($status = 0) {
+        if ($status == self::APROVADO_APOS_MODIFICACOES) {
+            return '<div class="alert alert-success" role="alert">
+                        <h4 class="alert-heading">Envio aprovado após modificações.</h4>
+                        <p>Parabéns, seu envio foi aprovado!</p>
+                    </div>';
+        }
+
+        if ($status == self::APROVADO_SEM_MODIFICACOES) {
+            return '<div class="alert alert-success" role="alert">
+                        <h4 class="alert-heading">Envio aprovado sem modificações.</h4>
+                        <p>Parabéns, seu envio foi aprovado!</p>
+                    </div>';
+        }
+
+        return '<div class="alert alert-info" role="alert">
+                        <h4 class="alert-heading">Envio não aprovado.</h4>
+                        <p>Seu envio não foi avaliado ainda ou não foi aprovado!</p>
+                    </div>';
+    }
+
+    public function get_attachment($context, $attemptid, $filearea) {
+        $fs = get_file_storage();
+
+        $files = $fs->get_area_files($context->id,
+            'mod_cfp',
+            $filearea,
+            $attemptid,
+            'timemodified',
+            false);
+
+        if (!$files) {
+            return false;
+        }
+
+        foreach ($files as $file) {
+            $path = [
+                '',
+                $file->get_contextid(),
+                $file->get_component(),
+                $file->get_filearea(),
+                $attemptid . $file->get_filepath() . $file->get_filename()
+            ];
+
+            $fileurl = \moodle_url::make_file_url('/pluginfile.php', implode('/', $path), true);
+
+            return [
+                    'filename' => $file->get_filename(),
+                    'isimage' => $file->is_valid_image(),
+                    'fileurl' => $fileurl->out()
+            ];
+        }
+
+        return false;
+    }
 }

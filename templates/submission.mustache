@@ -1,24 +1,19 @@
-<h5 class="card-title">{{{ cfp.name }}}</h5>
+<h5 class="card-title">Respostas</h5>
 
-<div class="userinfo">
-    <div class="pic">
-        <img src="{{{ user.img}}}" alt="{{{ user.firstname }}} {{{ user.lastname }}}">
+{{#answers}}
+        <div class="alert alert-info">
+            <h5 class="alert-heading">{{{label}}}</h5>
+            <hr>
+            <p class="mb-0">{{{answer}}}</p>
+        </div>
+{{/answers}}
+
+{{#attachment_nonidentified}}
+    <div class="alert alert-primary" role="alert">
+        <h4 class="alert-heading">Anexo não identificado</h4>
+        <hr>
+        <div class="attachment">
+            <a href="{{fileurl}}" class="btn btn-outline-primary"><i class="fa fa-file-pdf-o"></i> Fazer download do arquivo</a>
+        </div>
     </div>
-    <div class="infos ml-md-2">
-        <p class="m-b-0"><b>Nome completo:</b> {{{ user.firstname }}} {{{ user.lastname }}}</p>
-        <p class="m-b-0"><b>Email:</b> {{{ user.email }}}</p>
-    </div>
-</div>
-
-<hr>
-
-<ol class="pl-4">
-    {{#answers}}
-        <li class="pl-2">
-            <div class="alert alert-info">
-                <h5 class="alert-heading">{{{label}}}</h5>
-                <p class="mb-0">{{{answer}}}</p>
-            </div>
-        </li>
-    {{/answers}}
-</ol>
+{{/attachment_nonidentified}}

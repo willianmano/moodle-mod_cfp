@@ -102,6 +102,7 @@ class view implements renderable, templatable {
 
             $data['hasattempt'] = $attempt !== false;
             $data['status'] = $attempt ? $attemptutil->get_status_string($attempt->status) : $attemptutil->get_status_string();
+            $data['statusalert'] = $attempt ? $attemptutil->get_status_alert($attempt->status) : $attemptutil->get_status_alert();
 
             return $data;
         }

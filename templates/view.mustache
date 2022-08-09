@@ -33,12 +33,14 @@
                         {{/hasattempt}}
                     </td>
                 </tr>
+                {{#hasattempt}}
                 <tr>
                     <th class="cell c0" scope="row" style="width: 200px;">{{#str}}submission_status, mod_cfp{{/str}}</th>
                     <td class="cell c1 lastcol">
                         <span class="badge badge-info">{{status}}</span>
                     </td>
                 </tr>
+                {{/hasattempt}}
                 <tr>
                     <th class="cell c0" scope="row" style="width: 200px;">{{#str}}timeremaining, mod_cfp{{/str}}</th>
                     <td class="cell c1 lastcol">
@@ -56,18 +58,7 @@
     </div>
 
     {{#hasattempt}}
-        {{#isdelayed}}
-            <div class="alert alert-warning" role="alert">
-                <h3>{{#str}}duetimedone, mod_cfp{{/str}}</h3>
-                <hr>
-                <p class="mb-0">{{#str}}duetimedone_msg, mod_cfp{{/str}}</p>
-            </div>
-        {{/isdelayed}}
-        {{^isdelayed}}
-            <div class="submissionlinks text-center">
-                <a class="btn btn-primary" href="{{{config.wwwroot}}}/mod/cfp/submit.php?id={{{cmid}}}">{{#str}}editsubmission, mod_cfp{{/str}}</a>
-            </div>
-        {{/isdelayed}}
+        {{{statusalert}}}
     {{/hasattempt}}
     {{^hasattempt}}
         {{^isdelayed}}

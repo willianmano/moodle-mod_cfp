@@ -26,6 +26,7 @@ namespace mod_cfp\output;
 
 defined('MOODLE_INTERNAL') || die();
 
+use mod_cfp\util\attempt;
 use mod_cfp\util\user;
 use renderable;
 use renderer_base;
@@ -40,13 +41,13 @@ use templatable;
  */
 class submission implements renderable, templatable {
 
-    protected $course;
+    protected $context;
     protected $cfp;
     protected $user;
 
-    public function __construct($course, $cfp, $user)
+    public function __construct($context, $cfp, $user)
     {
-        $this->course = $course;
+        $this->context = $context;
         $this->cfp = $cfp;
         $this->user = $user;
     }
@@ -62,23 +63,20 @@ class submission implements renderable, templatable {
      * @throws \dml_exception
      */
     public function export_for_template(renderer_base $output) {
-        global $PAGE;
-
         $userutil = new user($this->cfp->id);
-
-        $userimg = new \user_picture($this->user);
-        $userimg->size = 100;
-
-        $this->user->img = $userimg->get_url($PAGE);
 
         $submission = $userutil->get_submission($this->user->id);
         $answers = array_values($submission);
 
+        $attempt = $userutil->get_attempt($this->user->id);
+
+        $attemptutil = new attempt();
+
         return [
-            'course' => $this->course,
+            'context' => $this->context,
             'cfp' => $this->cfp,
             'answers' => $answers,
-            'user' => $this->user
+            'attachment_nonidentified' => $attemptutil->get_attachment($this->context, $attempt->id, 'attachment_nonidentified')
         ];
     }
 }

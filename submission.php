@@ -42,9 +42,11 @@ $course = $DB->get_record('course', array('id' => $cfp->course), '*', MUST_EXIST
 
 $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
 
+$context = context_module::instance($cm->id);
+
 require_login($course, true, $cm);
 
-require_capability('mod/cfp:addinstance', $PAGE->context);
+require_capability('mod/cfp:addinstance', $context);
 
 // Print the page header.
 $PAGE->set_url('/mod/cfp/submission.php', array('id' => $id));
@@ -53,7 +55,7 @@ $PAGE->set_heading(format_string($course->fullname));
 
 $context = context_module::instance($cm->id);
 
-$viewrenderable = new mod_cfp\output\submission($course, $cfp, $user);
+$viewrenderable = new mod_cfp\output\submission($context, $cfp, $user);
 
 $renderer = $PAGE->get_renderer('mod_cfp');
 

@@ -48,13 +48,14 @@ class submissions extends table_sql {
         $this->coursemodule = $coursemodule;
         $this->cfp = $cfp;
 
-        $columns = array('id', 'fullname', 'email', 'status');
+        $columns = array('name', 'status');
         $this->define_columns($columns);
 
-        $headers = array('ID', get_string('fullname'), 'E-mail', 'Status');
+        $headers = array(get_string('name'), 'Status');
         $this->define_headers($headers);
 
         $this->no_sorting('status');
+        $this->no_sorting('name');
 
         $urlparamms = ['id' => $coursemodule->id];
         $this->define_baseurl(new moodle_url('/mod/cfp/viewsubmissions.php', $urlparamms));
@@ -65,19 +66,19 @@ class submissions extends table_sql {
     }
 
     public function base_sql() {
-        $fields = 'DISTINCT u.id, u.firstname, u.lastname, u.email';
+        $fields = 'DISTINCT u.id, u.firstname, u.lastname, u.email, a.cfpid, a.id as attemptid';
 
-        $capjoin = get_enrolled_with_capabilities_join($this->context, '', 'mod/cfp:submit');
+        $from = '{cfp_attempts} a INNER JOIN {user} u ON u.id = a.userid';
 
-        $from = ' {user} u ' . $capjoin->joins;
+        $where = 'a.cfpid = :cfpid';
 
-        $params = $capjoin->params;
+        $params = ['cfpid' => $this->cfp->id];
 
-        $this->set_sql($fields, $from, $capjoin->wheres, $params);
+        $this->set_sql($fields, $from, $where, $params);
     }
 
-    public function col_fullname($user) {
-        return $user->firstname . ' ' . $user->lastname;
+    public function col_name($user) {
+        return md5($user->id);
     }
 
     public function col_status($user) {
