@@ -20,17 +20,23 @@
                 <tbody>
                 <tr>
                     <th class="cell c0" scope="row" style="width: 200px;">{{#str}}duedate, mod_cfp{{/str}}</th>
-                    <td class="cell c1 lastcol">{{{datelimit}}}</td>
+                    <td class="cell c1 lastcol">{{{duedate}}}</td>
                 </tr>
                 <tr>
                     <th class="cell c0" scope="row" style="width: 200px;">{{#str}}submission_status, mod_cfp{{/str}}</th>
                     <td class="cell c1 lastcol">
-                        {{#hassubmission}}
+                        {{#hasattempt}}
                             <span class="badge badge-success">{{#str}}sent, mod_cfp{{/str}}</span>
-                        {{/hassubmission}}
-                        {{^hassubmission}}
+                        {{/hasattempt}}
+                        {{^hasattempt}}
                             <span class="badge badge-dark">{{#str}}notsent, mod_cfp{{/str}}</span>
-                        {{/hassubmission}}
+                        {{/hasattempt}}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="cell c0" scope="row" style="width: 200px;">{{#str}}submission_status, mod_cfp{{/str}}</th>
+                    <td class="cell c1 lastcol">
+                        <span class="badge badge-info">{{status}}</span>
                     </td>
                 </tr>
                 <tr>
@@ -49,7 +55,7 @@
         </div>
     </div>
 
-    {{#hassubmission}}
+    {{#hasattempt}}
         {{#isdelayed}}
             <div class="alert alert-warning" role="alert">
                 <h3>{{#str}}duetimedone, mod_cfp{{/str}}</h3>
@@ -62,8 +68,8 @@
                 <a class="btn btn-primary" href="{{{config.wwwroot}}}/mod/cfp/submit.php?id={{{cmid}}}">{{#str}}editsubmission, mod_cfp{{/str}}</a>
             </div>
         {{/isdelayed}}
-    {{/hassubmission}}
-    {{^hassubmission}}
+    {{/hasattempt}}
+    {{^hasattempt}}
         {{^isdelayed}}
             <div class="submissionlinks text-center">
                 <a class="btn btn-primary" href="{{{config.wwwroot}}}/mod/cfp/submit.php?id={{{cmid}}}">{{#str}}addsubmission, mod_cfp{{/str}}</a>
@@ -71,5 +77,5 @@
                 <p class="py-3 submithelp">{{#str}}youhavenotsent, mod_cfp{{/str}}</p>
             </div>
         {{/isdelayed}}
-    {{/hassubmission}}
+    {{/hasattempt}}
 {{/hasquestions}}

@@ -83,3 +83,12 @@ $string['viewallsubmissions'] = 'View all submissions';
 
 $string['submissions_title'] = 'Students submissions';
 $string['notsubmitted'] = 'Not submitted';
+
+$string['submit_useralert'] = 'Atenção!';
+$string['submit_useralert_desc'] = 'Abaixo você deverá enviar dois arquivos, um identificado e um ...';
+$string['attachment_nonidentified'] = 'Arquivo não identificado';
+$string['attachment_identified'] = 'Arquivo identificado';
+
+$string['status_aprovadoaposmodificacoes'] = 'Approved with modifications';
+$string['status_aprovadosemmodificacoes'] = 'Approved without modifications';
+$string['status_naoaprovado'] = 'Not approved';

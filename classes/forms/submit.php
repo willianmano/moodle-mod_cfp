@@ -26,8 +26,9 @@ namespace mod_cfp\forms;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir. '/formslib.php');
+require_once($CFG->libdir . '/formslib.php');
 
+use mod_cfp\util\attempt;
 use mod_cfp\util\question;
 use mod_cfp\util\user;
 
@@ -43,18 +44,34 @@ class submit extends \moodleform {
 
         $this->add_activity_fields();
 
+        $alertcontent  = \html_writer::start_div('alert alert-info', ['role' => 'alert']);
+        $alertcontent .= \html_writer::tag('h2', get_string('submit_useralert', 'mod_cfp'));
+        $alertcontent .= '<hr />';
+        $alertcontent .= \html_writer::tag('p', get_string('submit_useralert_desc', 'mod_cfp'), ['class' => 'mb-0']);
+        $alertcontent .= \html_writer::end_div();
+        $mform->addElement('html', $alertcontent);
+
+        $options = [
+            'subdirs' => 0,
+            'maxfiles' => 1,
+            'accepted_types' => ['document', 'presentation']
+        ];
+
+        $mform->addElement('filemanager', 'attachment_nonidentified', get_string('attachment_nonidentified', 'mod_cfp'), null, $options);
+        $mform->addRule('attachment_nonidentified', get_string('required'), 'required', null, 'client');
+
+        $mform->addElement('filemanager', 'attachment_identified', get_string('attachment_identified', 'mod_cfp'), null, $options);
+        $mform->addRule('attachment_identified', get_string('required'), 'required', null, 'client');
+
         $this->add_action_buttons(true);
     }
 
     private function add_activity_fields() {
-        global $DB;
-
-        $cfp = $DB->get_record('cfp', ['id' => $this->_customdata['cfpid']], '*', MUST_EXIST);
-        $userutil = new user($cfp);
+        $userutil = new user($this->_customdata['cfpid']);
 
         $activitysubmitted = false;
         $answers = null;
-        if ($userutil->activity_submitted()) {
+        if ($userutil->get_attempt()) {
             $activitysubmitted = true;
             $submitedanswers = $userutil->get_submission();
 
@@ -100,6 +117,37 @@ class submit extends \moodleform {
             if ($activitysubmitted) {
                 $mform->setDefault($field->name, $answers[$field->name]);
             }
+        }
+    }
+
+    public function definition_after_data() {
+        if (!$this->_customdata['cfpid']) {
+            return;
+        }
+
+        $mform = $this->_form;
+
+        $userutil = new user($this->_customdata['cfpid']);
+
+        $attempt = $userutil->get_attempt();
+
+        if ($attempt) {
+            $cm = get_coursemodule_from_instance('cfp', $this->_customdata['cfpid']);
+
+            $context = \context_module::instance($cm->id);
+            $draftitemid = file_get_submitted_draft_itemid('attachments');
+
+            $options = [
+                'subdirs' => 0,
+                'maxfiles' => 1,
+                'accepted_types' => ['document', 'presentation']
+            ];
+
+            file_prepare_draft_area($draftitemid, $context->id, 'mod_cfp', 'attachment_nonidentified', $attempt->id, $options);
+            $mform->getElement('attachment_nonidentified')->setValue($draftitemid);
+
+            file_prepare_draft_area($draftitemid, $context->id, 'mod_cfp', 'attachment_identified', $attempt->id, $options);
+            $mform->getElement('attachment_identified')->setValue($draftitemid);
         }
     }
 }

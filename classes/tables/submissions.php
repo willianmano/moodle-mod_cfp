@@ -83,9 +83,9 @@ class submissions extends table_sql {
     public function col_status($user) {
         $url = new moodle_url('/mod/cfp/submission.php', ['id' => $this->coursemodule->id, 'userid' => $user->id]);
 
-        $userutil = new user($this->cfp);
+        $userutil = new user($this->cfp->id);
 
-        $hassubmission = $userutil->activity_submitted($user->id);
+        $hassubmission = $userutil->get_attempt($user->id);
         $hasevaluation = $userutil->activity_evaluated($user->id);
 
         $output = "<span class='badge badge-pill badge-dark py-2'>".get_string('notsubmitted', 'mod_cfp')."</span>";

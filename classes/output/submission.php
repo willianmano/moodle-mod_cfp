@@ -26,6 +26,7 @@ namespace mod_cfp\output;
 
 defined('MOODLE_INTERNAL') || die();
 
+use mod_cfp\util\user;
 use renderable;
 use renderer_base;
 use templatable;
@@ -41,13 +42,13 @@ class submission implements renderable, templatable {
 
     protected $course;
     protected $cfp;
-    protected $submission;
+    protected $user;
 
-    public function __construct($course, $cfp, $submission)
+    public function __construct($course, $cfp, $user)
     {
         $this->course = $course;
         $this->cfp = $cfp;
-        $this->submission = $submission;
+        $this->user = $user;
     }
 
     /**
@@ -61,23 +62,20 @@ class submission implements renderable, templatable {
      * @throws \dml_exception
      */
     public function export_for_template(renderer_base $output) {
-        global $DB, $PAGE;
+        global $PAGE;
 
-        $sql = 'SELECT * FROM {user} WHERE id = :id';
-        $params = ['id' => $this->submission->userid];
+        $userutil = new user($this->cfp->id);
 
-        $user = $DB->get_record_sql($sql, $params);
-
-        $userimg = new \user_picture($user);
+        $userimg = new \user_picture($this->user);
         $userimg->size = 100;
 
-        $user->img = $userimg->get_url($PAGE);
+        $this->user->img = $userimg->get_url($PAGE);
 
         return [
             'course' => $this->course,
             'cfp' => $this->cfp,
-            'submission' => $this->submission,
-            'user' => $user
+            'attempt' => $userutil->get_attempt($this->user->id),
+            'user' => $this->user
         ];
     }
 }

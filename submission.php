@@ -30,13 +30,17 @@
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 
-$id = required_param('id', PARAM_INT); // The submission ID
+$id = required_param('id', PARAM_INT);
 
-$submission = $DB->get_record('cfp_submissions', ['id' => $id], '*', MUST_EXIST);
+$userid = required_param('userid', PARAM_INT);
 
-$cfp = $DB->get_record('cfp', array('id' => $submission->cfpid), '*', MUST_EXIST);
+$cm = get_coursemodule_from_id('cfp', $id);
+
+$cfp = $DB->get_record('cfp', array('id' => $cm->instance), '*', MUST_EXIST);
+
 $course = $DB->get_record('course', array('id' => $cfp->course), '*', MUST_EXIST);
-$cm = get_coursemodule_from_instance('cfp', $cfp->id, $course->id, false, MUST_EXIST);
+
+$user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
 
 require_login($course, true, $cm);
 
@@ -49,7 +53,7 @@ $PAGE->set_heading(format_string($course->fullname));
 
 $context = context_module::instance($cm->id);
 
-$viewrenderable = new mod_cfp\output\submission($course, $cfp, $submission);
+$viewrenderable = new mod_cfp\output\submission($course, $cfp, $user);
 
 $renderer = $PAGE->get_renderer('mod_cfp');
 

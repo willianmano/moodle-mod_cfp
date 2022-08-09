@@ -57,20 +57,20 @@ if ($form->is_cancelled()) {
     try {
         $data = clone $formdata;
 
-        require_once(__DIR__ . '/locallib.php');
-
         unset($data->submitbutton);
 
         $url = new moodle_url('/mod/cfp/view.php', $urlparams);
 
-        $userutil = new \mod_cfp\util\user($cfp);
+        $userutil = new \mod_cfp\util\user($cfp->id);
 
-        if (!$userutil->activity_submitted()) {
-            mod_cfp_add_submission($context, $course, $cm, $data);
+        $attemptutil = new \mod_cfp\util\attempt();
+
+        if (!$userutil->get_attempt()) {
+            $attemptutil->save($context, $data);
 
             redirect($url, 'Avaliação enviada com sucesso.', null, \core\output\notification::NOTIFY_SUCCESS);
         } else {
-            mod_cfp_update_submission($context, $course, $cm, $cfp, $data);
+            $attemptutil->update($context, $course, $cm, $cfp, $data);
 
             redirect($url, 'Avaliação atualizada com sucesso.', null, \core\output\notification::NOTIFY_SUCCESS);
         }

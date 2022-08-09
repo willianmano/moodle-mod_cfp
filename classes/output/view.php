@@ -26,8 +26,10 @@ namespace mod_cfp\output;
 
 defined('MOODLE_INTERNAL') || die();
 
+use mod_cfp\util\attempt;
 use mod_cfp\util\cfp;
 use mod_cfp\util\question;
+use mod_cfp\util\user;
 use renderable;
 use renderer_base;
 use templatable;
@@ -70,6 +72,7 @@ class view implements renderable, templatable {
         $cfputil = new cfp();
         $questionutil = new question();
 
+
         $hasquestions = $questionutil->activity_has_questions($this->cfp->id);
 
         $timeremaining = $this->cfp->duedate - time();
@@ -92,6 +95,14 @@ class view implements renderable, templatable {
 
         // If student, return current data.
         if (!has_capability('mod/cfp:evaluate', $this->context)) {
+            $userutil = new user($this->cfp->id);
+            $attemptutil = new attempt();
+
+            $attempt = $userutil->get_attempt();
+
+            $data['hasattempt'] = $attempt !== false;
+            $data['status'] = $attempt ? $attemptutil->get_status_string($attempt->status) : $attemptutil->get_status_string();
+
             return $data;
         }
 
