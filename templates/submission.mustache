@@ -7,28 +7,18 @@
     <div class="infos ml-md-2">
         <p class="m-b-0"><b>Nome completo:</b> {{{ user.firstname }}} {{{ user.lastname }}}</p>
         <p class="m-b-0"><b>Email:</b> {{{ user.email }}}</p>
-        <p class="m-b-0"><b>Telefone para contato:</b> {{{ submission.contact }}}</p>
-        <p class="m-b-0"><b>Minicurrículo:</b> {{{ submission.minicurriculum }}}</p>
     </div>
 </div>
 
 <hr>
 
-<p class="m-b-0"><b>Tipo de apresentação:</b> {{{ submission.type }}}</p>
-<p class="m-b-0"><b>Público alvo:</b> {{{ submission.audience }}}</p>
-<p class="m-b-0"><b>Trilha:</b> {{{ submission.track }}}</p>
-<p class="m-b-0"><b>Nível:</b> {{{ submission.level }}}</p>
-
-<hr>
-
-<p><b>Título da apresentação:</b> {{{ submission.title }}}</p>
-<p class="m-b-0"><b>Resumo da apresentação:</b></p>
-<textarea rows="10" class="form-control" disabled>{{{ submission.resume }}}</textarea>
-
-<p class="m-b-0 m-t-1"><b>Informações complementares/Observações:</b></p>
-<textarea rows="10" class="form-control" disabled>{{{ submission.notes }}}</textarea>
-
-<div class="m-t-1">
-    <a class="btn btn-success" href="#">Aprovar submissão</a>
-    <a class="btn btn-danger" href="#">Reprovar submissão</a>
-</div>
+<ol class="pl-4">
+    {{#answers}}
+        <li class="pl-2">
+            <div class="alert alert-info">
+                <h5 class="alert-heading">{{{label}}}</h5>
+                <p class="mb-0">{{{answer}}}</p>
+            </div>
+        </li>
+    {{/answers}}
+</ol>

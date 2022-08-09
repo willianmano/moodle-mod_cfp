@@ -71,10 +71,13 @@ class submission implements renderable, templatable {
 
         $this->user->img = $userimg->get_url($PAGE);
 
+        $submission = $userutil->get_submission($this->user->id);
+        $answers = array_values($submission);
+
         return [
             'course' => $this->course,
             'cfp' => $this->cfp,
-            'attempt' => $userutil->get_attempt($this->user->id),
+            'answers' => $answers,
             'user' => $this->user
         ];
     }
