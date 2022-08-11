@@ -109,16 +109,10 @@ class view implements renderable, templatable {
 
         $coursemodule = get_coursemodule_from_instance('cfp', $this->cfp->id);
 
-        $participants = count_enrolled_users($this->context, 'mod/cfp:submit');
-
         $submissions = $cfputil->get_total_submissions($this->cfp->id);
 
-        $needssubmission = (int)$participants - $submissions;
-
         $data['hide'] = $coursemodule->visible;
-        $data['participants'] = $participants;
         $data['submissions'] = $submissions;
-        $data['needssubmission'] = $needssubmission;
 
         return $data;
     }
