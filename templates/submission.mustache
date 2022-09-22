@@ -1,5 +1,8 @@
-<h5 class="card-title">Respostas</h5>
+<h4>Nome completo: {{fullname}}</h4>
+<hr>
 
+<h5 class="card-title">Respostas</h5>
+<hr>
 {{#answers}}
         <div class="alert alert-info">
             <h5 class="alert-heading">{{{label}}}</h5>
@@ -8,12 +11,28 @@
         </div>
 {{/answers}}
 
-{{#attachment_nonidentified}}
-    <div class="alert alert-primary" role="alert">
-        <h4 class="alert-heading">Anexo não identificado</h4>
+<h5>Anexos</h5>
+<hr>
+{{#attachment_identified}}
+    <div class="alert alert-success" role="alert">
+        <h4 class="alert-heading">Arquivo identificado</h4>
         <hr>
         <div class="attachment">
-            <a href="{{fileurl}}" class="btn btn-outline-primary"><i class="fa fa-file-pdf-o"></i> Fazer download do arquivo</a>
+            <a href="{{fileurl}}" class="btn btn-outline-success"><i class="fa fa-file-pdf-o"></i> Fazer download do arquivo identificado</a>
+        </div>
+    </div>
+{{/attachment_identified}}
+
+{{#attachment_nonidentified}}
+    <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">Arquivo não identificado</h4>
+        <hr>
+        <div class="attachment">
+            <a href="{{fileurl}}" class="btn btn-outline-warning"><i class="fa fa-file-pdf-o"></i> Fazer download do arquivo não identificado</a>
         </div>
     </div>
 {{/attachment_nonidentified}}
+
+<div>
+    <a href="{{config.wwwroot}}/mod/cfp/viewsubmissions.php?id={{cmid}}" class="btn btn-primary">Voltar</a>
+</div>

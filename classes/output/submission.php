@@ -31,6 +31,7 @@ use mod_cfp\util\user;
 use renderable;
 use renderer_base;
 use templatable;
+use tool_brickfield\local\areas\core_course\fullname;
 
 /**
  * Class containing data for cfp manage page.
@@ -45,8 +46,7 @@ class submission implements renderable, templatable {
     protected $cfp;
     protected $user;
 
-    public function __construct($context, $cfp, $user)
-    {
+    public function __construct($context, $cfp, $user) {
         $this->context = $context;
         $this->cfp = $cfp;
         $this->user = $user;
@@ -63,9 +63,9 @@ class submission implements renderable, templatable {
      * @throws \dml_exception
      */
     public function export_for_template(renderer_base $output) {
-        $userutil = new user($this->cfp->id);
+        $userutil = new user($this->user->id, $this->cfp->id);
 
-        $submission = $userutil->get_submission($this->user->id);
+        $submission = $userutil->get_submission();
         $answers = array_values($submission);
 
         $attempt = $userutil->get_attempt($this->user->id);
@@ -73,9 +73,10 @@ class submission implements renderable, templatable {
         $attemptutil = new attempt();
 
         return [
-            'context' => $this->context,
-            'cfp' => $this->cfp,
+            'cmid' => $this->context->instanceid,
+            'fullname' => fullname($this->user),
             'answers' => $answers,
+            'attachment_identified' => $attemptutil->get_attachment($this->context, $attempt->id, 'attachment_identified'),
             'attachment_nonidentified' => $attemptutil->get_attachment($this->context, $attempt->id, 'attachment_nonidentified')
         ];
     }

@@ -3,28 +3,22 @@
 namespace mod_cfp\util;
 
 class user {
+    protected $userid;
     protected $cfpid;
 
-    public function __construct($cfpid) {
+    public function __construct($userid, $cfpid) {
+        $this->userid = $userid;
         $this->cfpid = $cfpid;
     }
 
-    public function get_attempt($userid = null) {
-        global $USER, $DB;
+    public function get_attempt() {
+        global $DB;
 
-        if (!$userid) {
-            $userid = $USER->id;
-        }
-
-        return $DB->get_record('cfp_attempts', ['cfpid' => $this->cfpid, 'userid' => $userid]);
+        return $DB->get_record('cfp_attempts', ['cfpid' => $this->cfpid, 'userid' => $this->userid]);
     }
 
-    public function get_submission($userid = null) {
-        global $USER, $DB;
-
-        if (!$userid) {
-            $userid = $USER->id;
-        }
+    public function get_submission() {
+        global $DB;
 
         $sql = 'SELECT a.*, fi.name, fi.label
                 FROM {cfp_answers} a
@@ -32,7 +26,7 @@ class user {
                 INNER JOIN {cfp_fields} fi ON fi.id = a.fieldid
                 WHERE att.cfpid = :cfpid AND att.userid = :userid';
 
-        $submission = $DB->get_records_sql($sql, ['cfpid' => $this->cfpid, 'userid' => $userid]);
+        $submission = $DB->get_records_sql($sql, ['cfpid' => $this->cfpid, 'userid' => $this->userid]);
 
         if (!$submission) {
             return false;
@@ -41,31 +35,23 @@ class user {
         return $submission;
     }
 
-    public function delete_submission($userid = null) {
-        global $USER, $DB;
-
-        if (!$userid) {
-            $userid = $USER->id;
-        }
+    public function delete_submission() {
+        global $DB;
 
         $sql = 'DELETE a
                 FROM {cfp_answers} a
                 INNER JOIN {cfp_attempts} att ON att.id = a.attemptid
                 WHERE att.cfpid = :cfpid AND att.userid = :userid';
 
-        $DB->execute($sql, ['cfpid' => $this->cfpid, 'userid' => $userid]);
+        $DB->execute($sql, ['cfpid' => $this->cfpid, 'userid' => $this->userid]);
 
-        $DB->delete_records('cfp_attempts', ['cfpid' => $this->cfpid, 'userid' => $userid]);
+        $DB->delete_records('cfp_attempts', ['cfpid' => $this->cfpid, 'userid' => $this->userid]);
     }
 
-    public function activity_evaluated($userid = null) {
+    public function activity_evaluated() {
         return false;
         global $USER;
 
-        if (!$userid) {
-            $userid = $USER->id;
-        }
-
-        return $this->evaluationmethod->activity_has_evaluation($userid);
+        return $this->evaluationmethod->activity_has_evaluation($this->userid);
     }
 }
